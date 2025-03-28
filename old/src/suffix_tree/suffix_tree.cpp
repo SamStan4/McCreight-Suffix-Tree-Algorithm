@@ -62,46 +62,53 @@ void suffix_tree::print_helper(std::ostream& os, suffix_tree_node* cur_ptr, std:
 }
 
 void suffix_tree::build_tree_mccreight() {
-    const int32_t str_size = (int32_t)this->m_str.size();
-    for (int32_t i = 0; i < str_size; ++i) {
-        this->find_path_and_insert(this->m_root_ptr, i);
+    const int32_t size = (int32_t)this->m_str.size();
+    // for (int32_t i = 0; i < size; ++i) {
+    //     int32_t pos = 0;
+    //     suffix_tree_node* internal_node_ptr = this->find_path(this->m_root_ptr, i, pos);
+    //     suffix_tree_node* new_leaf_ptr = new suffix_tree_node();
+    //     new_leaf_ptr->m_parent_ptr = internal_node_ptr;
+    //     new_leaf_ptr->m_sibling_ptr = internal_node_ptr->m_child_ptr;
+    //     internal_node_ptr->m_child_ptr = new_leaf_ptr;
+
+    //     new_leaf_ptr->m_start_idx = pos;
+    //     new_leaf_ptr->m_size = size - new_leaf_ptr->m_start_idx;
+    // }
+
+    suffix_tree_node* new_internal_ptr = this->m_root_ptr;
+
+    for (int i = 0; i < size; ++i) {
+        if (new_internal_ptr->m_suffix_ptr) {
+
+        } else {
+            
+        }
     }
 }
 
-suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, int32_t idx) {
-    int32_t i = cur_ptr->m_start_idx; // this is the position in the tree in which we are comparing with
-    int32_t j = idx; // this is the position in the string in which we are comparing with
-    int32_t k = 0; // this is the number of characters that were the same
-    while (k < cur_ptr->m_size && this->compare_indicies(i, j)) {
-        ++i;
-        ++j;
-        ++k;
-    }
-    if (k == cur_ptr->m_size) {
-        suffix_tree_node* next_ptr = cur_ptr->get_child_ptr(this->m_str, j);
-        if (next_ptr) {
-            return this->find_path_and_insert(next_ptr, j);
-        } else {
-            suffix_tree_node* new_leaf_ptr = new suffix_tree_node();
-            new_leaf_ptr->m_start_idx = j;
-            new_leaf_ptr->m_size = (int32_t)this->m_str.size() - j;
-            new_leaf_ptr->m_parent_ptr = cur_ptr;
-            new_leaf_ptr->m_sibling_ptr = cur_ptr->m_child_ptr;
-            cur_ptr->m_child_ptr = new_leaf_ptr;
-            new_leaf_ptr->update_depth();
+suffix_tree_node* suffix_tree::find_path(suffix_tree_node* cur_ptr, int32_t idx, int32_t& pos) {
+    int i = cur_ptr->m_start_idx;
+    int j = 0;
+    int k = idx;
+    for (; j < cur_ptr->m_size && this->m_str[i] == this->m_str[k]; ++i, ++j, ++k);
+    if (j == cur_ptr->m_size) {
+        suffix_tree_node* next_ptr = cur_ptr->get_child_ptr(this->m_str, k);
+        if (next_ptr == nullptr) {
+            pos = k;
             return cur_ptr;
+        } else {
+            return this->find_path(next_ptr, k, pos);
         }
     } else {
-        suffix_tree_node* new_internal_ptr = new suffix_tree_node();
-        suffix_tree_node* new_leaf_ptr = new suffix_tree_node();
+        pos = k;
 
-        // link internal pointer first
+        suffix_tree_node* new_internal_ptr = new suffix_tree_node();
 
         new_internal_ptr->m_start_idx = cur_ptr->m_start_idx;
-        new_internal_ptr->m_size = k;
+        new_internal_ptr->m_size = j;
 
-        cur_ptr->m_start_idx += k;
-        cur_ptr->m_size -= k;
+        cur_ptr->m_start_idx += j;
+        cur_ptr->m_size -= j;
 
         new_internal_ptr->m_child_ptr = cur_ptr;
         new_internal_ptr->m_sibling_ptr = cur_ptr->m_sibling_ptr;
@@ -121,20 +128,52 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i
         }
 
         cur_ptr->m_parent_ptr = new_internal_ptr;
-
-        // link in leaf pointer second
-
-        new_leaf_ptr->m_start_idx = j;
-        new_leaf_ptr->m_size = (int32_t)this->m_str.size() - j;
-
-        cur_ptr->m_sibling_ptr = new_leaf_ptr;
-        new_leaf_ptr->m_parent_ptr = new_internal_ptr;
+        cur_ptr->m_sibling_ptr = nullptr;
 
         return new_internal_ptr;
     }
 }
 
 suffix_tree_node* suffix_tree::node_hops(suffix_tree_node* start_ptr, int32_t start, int32_t size) {
+    suffix_tree_node* cur_ptr = start_ptr;
+    int32_t distance = 0;
+    while (distance < size) {
+        cur_ptr = cur_ptr->get_child_ptr(this->m_str, start + distance);
+        distance += cur_ptr->m_size;
+    }
+    if (distance == size) {
+        return cur_ptr;
+    } else {
+        suffix_tree_node* new_internal_ptr = new suffix_tree_node();
+
+        new_internal_ptr->m_parent_ptr = cur_ptr->m_parent_ptr;
+        new_internal_ptr->m_child_ptr = cur_ptr;
+        new_internal_ptr->m_sibling_ptr = cur_ptr->m_sibling_ptr;
+
+        if (cur_ptr->m_parent_ptr->m_child_ptr == cur_ptr) {
+            cur_ptr->m_parent_ptr->m_child_ptr = new_internal_ptr;
+        } else {
+            suffix_tree_node* cur_child_ptr = cur_ptr->m_parent_ptr->m_child_ptr;
+            while (cur_child_ptr) {
+                if (cur_child_ptr->m_sibling_ptr == cur_ptr) {
+                    cur_child_ptr->m_sibling_ptr = new_internal_ptr;
+                    break;
+                }
+                cur_child_ptr = cur_child_ptr->m_sibling_ptr;
+            }
+        }
+
+        cur_ptr->m_sibling_ptr = nullptr;
+        cur_ptr->m_parent_ptr = new_internal_ptr;
+
+        new_internal_ptr->m_start_idx = cur_ptr->m_start_idx;
+        new_internal_ptr->m_size = cur_ptr->m_size - (distance - size) - 1;
+
+        cur_ptr->m_start_idx = new_internal_ptr->m_start_idx + new_internal_ptr->m_size;
+        cur_ptr->m_size -= new_internal_ptr->m_size;
+
+        return new_internal_ptr;
+    }
 }
 
 int32_t suffix_tree::get_number_leaf_nodes(void) {
@@ -177,11 +216,4 @@ void suffix_tree::get_number_internal_nodes_helper(suffix_tree_node* cur_ptr, in
 
 size_t suffix_tree::get_str_size(void) {
     return this->m_str.size();
-}
-
-bool suffix_tree::compare_indicies(int32_t i, int32_t j) const {
-    if (i >= (int32_t)this->m_str.size() || j >= (int32_t)this->m_str.size()) {
-        throw std::runtime_error("error in compare_indicies");
-    }
-    return this->m_str[i] == this->m_str[j];
 }

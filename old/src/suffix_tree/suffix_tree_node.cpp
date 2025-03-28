@@ -22,7 +22,3 @@ suffix_tree_node* suffix_tree_node::get_child_ptr(const std::string& str, int32_
     }
     return cur_child;
 }
-
-void suffix_tree_node::update_depth(void) {
-    this->m_depth = this->m_parent_ptr->m_depth + this->m_size;
-}

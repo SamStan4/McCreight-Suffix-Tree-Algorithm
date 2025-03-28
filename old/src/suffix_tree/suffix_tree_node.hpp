@@ -25,8 +25,6 @@ private:
     int32_t m_depth;
 
     friend class suffix_tree;
-
-    void update_depth(void);
 };
 
 #endif
