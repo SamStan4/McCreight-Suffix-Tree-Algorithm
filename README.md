@@ -1,3 +1,2 @@
 # McCreight-Suffix-Tree-Algorithm
-## An implementation of the $$O(n)$$ time suffix tree construction algorithm
-## Created in 1976
+- An implementation of the $$O(n)$$ time suffix tree construction algorithm created in 1976
