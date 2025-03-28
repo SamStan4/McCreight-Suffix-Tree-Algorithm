@@ -5,22 +5,22 @@
 
 class suffix_tree;
 
-struct gap;
-
 class suffix_tree_node {
+public:
+    suffix_tree_node();
+    ~suffix_tree_node();
+
+    suffix_tree_node* get_child_ptr(const std::string&, int32_t);
 private:
-    suffix_tree_node** m_children_ptrs;
+    suffix_tree_node* m_child_ptr;
+    suffix_tree_node* m_sibling_ptr;
     suffix_tree_node* m_parent_ptr;
     suffix_tree_node* m_suffix_ptr;
 
-    int m_start;
-    int m_end;
+    int32_t m_start_idx;
+    int32_t m_size;
 
     friend class suffix_tree;
-    friend struct gap;
-public:
-    suffix_tree_node(size_t alphabet_size);
-    ~suffix_tree_node();
 };
 
 #endif
