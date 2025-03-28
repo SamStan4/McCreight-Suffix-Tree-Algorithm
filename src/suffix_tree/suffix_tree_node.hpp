@@ -13,7 +13,7 @@ public:
     suffix_tree_node* get_child_ptr(const std::string&, int32_t);
 
     bool is_leaf(void);
-    
+
 private:
     suffix_tree_node* m_child_ptr;
     suffix_tree_node* m_sibling_ptr;
@@ -22,6 +22,7 @@ private:
 
     int32_t m_start_idx;
     int32_t m_size;
+    int32_t m_depth;
 
     friend class suffix_tree;
 };

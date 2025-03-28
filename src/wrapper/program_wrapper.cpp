@@ -22,4 +22,7 @@ void program_wrapper::run_program(const int arg_count, const char* const* arg_ve
     }
     suffix_tree tree(alphabet_string, gene_string);
     tree.print(std::cout);
+    std::cout << tree.get_str_size() << std::endl;
+    std::cout << tree.get_number_leaf_nodes() << std::endl;
+    std::cout << tree.get_number_internal_nodes() << std::endl;
 }

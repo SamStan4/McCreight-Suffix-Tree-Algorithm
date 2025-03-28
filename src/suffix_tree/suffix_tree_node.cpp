@@ -3,7 +3,7 @@
 suffix_tree_node::suffix_tree_node()
     : m_child_ptr(nullptr), m_sibling_ptr(nullptr),
       m_parent_ptr(nullptr), m_suffix_ptr(nullptr),
-      m_start_idx(0), m_size(0) {}
+      m_start_idx(0), m_size(0), m_depth(0) {}
 
 suffix_tree_node::~suffix_tree_node() {}
 

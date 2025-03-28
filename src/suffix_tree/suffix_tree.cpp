@@ -63,15 +63,26 @@ void suffix_tree::print_helper(std::ostream& os, suffix_tree_node* cur_ptr, std:
 
 void suffix_tree::build_tree_mccreight() {
     const int32_t size = (int32_t)this->m_str.size();
-    for (int32_t i = 0; i < size; ++i) {
-        int32_t pos = 0;
-        suffix_tree_node* internal_node_ptr = this->find_path(this->m_root_ptr, i, pos);
-        suffix_tree_node* new_leaf_ptr = new suffix_tree_node();
-        new_leaf_ptr->m_parent_ptr = internal_node_ptr;
-        new_leaf_ptr->m_sibling_ptr = internal_node_ptr->m_child_ptr;
-        internal_node_ptr->m_child_ptr = new_leaf_ptr;
-        new_leaf_ptr->m_start_idx = (internal_node_ptr == this->m_root_ptr ? i : pos);
-        new_leaf_ptr->m_size = size - new_leaf_ptr->m_start_idx;
+    // for (int32_t i = 0; i < size; ++i) {
+    //     int32_t pos = 0;
+    //     suffix_tree_node* internal_node_ptr = this->find_path(this->m_root_ptr, i, pos);
+    //     suffix_tree_node* new_leaf_ptr = new suffix_tree_node();
+    //     new_leaf_ptr->m_parent_ptr = internal_node_ptr;
+    //     new_leaf_ptr->m_sibling_ptr = internal_node_ptr->m_child_ptr;
+    //     internal_node_ptr->m_child_ptr = new_leaf_ptr;
+
+    //     new_leaf_ptr->m_start_idx = pos;
+    //     new_leaf_ptr->m_size = size - new_leaf_ptr->m_start_idx;
+    // }
+
+    suffix_tree_node* new_internal_ptr = this->m_root_ptr;
+
+    for (int i = 0; i < size; ++i) {
+        if (new_internal_ptr->m_suffix_ptr) {
+
+        } else {
+            
+        }
     }
 }
 
@@ -123,10 +134,86 @@ suffix_tree_node* suffix_tree::find_path(suffix_tree_node* cur_ptr, int32_t idx,
     }
 }
 
-int32_t suffix_tree::get_number_leaf_nodes(void) {
+suffix_tree_node* suffix_tree::node_hops(suffix_tree_node* start_ptr, int32_t start, int32_t size) {
+    suffix_tree_node* cur_ptr = start_ptr;
+    int32_t distance = 0;
+    while (distance < size) {
+        cur_ptr = cur_ptr->get_child_ptr(this->m_str, start + distance);
+        distance += cur_ptr->m_size;
+    }
+    if (distance == size) {
+        return cur_ptr;
+    } else {
+        suffix_tree_node* new_internal_ptr = new suffix_tree_node();
 
+        new_internal_ptr->m_parent_ptr = cur_ptr->m_parent_ptr;
+        new_internal_ptr->m_child_ptr = cur_ptr;
+        new_internal_ptr->m_sibling_ptr = cur_ptr->m_sibling_ptr;
+
+        if (cur_ptr->m_parent_ptr->m_child_ptr == cur_ptr) {
+            cur_ptr->m_parent_ptr->m_child_ptr = new_internal_ptr;
+        } else {
+            suffix_tree_node* cur_child_ptr = cur_ptr->m_parent_ptr->m_child_ptr;
+            while (cur_child_ptr) {
+                if (cur_child_ptr->m_sibling_ptr == cur_ptr) {
+                    cur_child_ptr->m_sibling_ptr = new_internal_ptr;
+                    break;
+                }
+                cur_child_ptr = cur_child_ptr->m_sibling_ptr;
+            }
+        }
+
+        cur_ptr->m_sibling_ptr = nullptr;
+        cur_ptr->m_parent_ptr = new_internal_ptr;
+
+        new_internal_ptr->m_start_idx = cur_ptr->m_start_idx;
+        new_internal_ptr->m_size = cur_ptr->m_size - (distance - size);
+
+        cur_ptr->m_start_idx = new_internal_ptr->m_start_idx + new_internal_ptr->m_size;
+        cur_ptr->m_size -= new_internal_ptr->m_size;
+
+        return new_internal_ptr;
+    }
+}
+
+int32_t suffix_tree::get_number_leaf_nodes(void) {
+    int32_t count = 0;
+    this->get_number_leaf_nodes_helper(this->m_root_ptr, count);
+    return count;
 }
 
 int32_t suffix_tree::get_number_internal_nodes(void) {
+    int32_t count = 0;
+    this->get_number_internal_nodes_helper(this->m_root_ptr, count);
+    return count;
+}
 
+void suffix_tree::get_number_leaf_nodes_helper(suffix_tree_node* cur_ptr, int32_t& leaf_node_count) {
+    if (!cur_ptr) {
+        return;
+    }
+
+    if (cur_ptr->is_leaf()) {
+        ++leaf_node_count;
+    }
+
+    this->get_number_leaf_nodes_helper(cur_ptr->m_sibling_ptr, leaf_node_count);
+    this->get_number_leaf_nodes_helper(cur_ptr->m_child_ptr, leaf_node_count);
+}
+
+void suffix_tree::get_number_internal_nodes_helper(suffix_tree_node* cur_ptr, int32_t& internal_node_count) {
+    if (!cur_ptr) {
+        return;
+    }
+
+    if (!cur_ptr->is_leaf()) {
+        ++internal_node_count;
+    }
+
+    this->get_number_internal_nodes_helper(cur_ptr->m_sibling_ptr, internal_node_count);
+    this->get_number_internal_nodes_helper(cur_ptr->m_child_ptr, internal_node_count);
+}
+
+size_t suffix_tree::get_str_size(void) {
+    return this->m_str.size();
 }
