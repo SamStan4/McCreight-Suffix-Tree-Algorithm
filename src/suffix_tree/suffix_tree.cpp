@@ -63,8 +63,12 @@ void suffix_tree::print_helper(std::ostream& os, suffix_tree_node* cur_ptr, std:
 
 void suffix_tree::build_tree_mccreight() {
     const int32_t str_size = (int32_t)this->m_str.size();
+    suffix_tree_node* internal_ptr = this->m_root_ptr;
     for (int32_t i = 0; i < str_size; ++i) {
-        this->find_path_and_insert(this->m_root_ptr, i);
+        if (!internal_ptr->m_suffix_ptr) {
+            this->resolve_missing_suffix_link(internal_ptr);
+        }
+        internal_ptr = this->find_path_and_insert(this->m_root_ptr, i);
     }
 }
 
@@ -130,11 +134,71 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i
         cur_ptr->m_sibling_ptr = new_leaf_ptr;
         new_leaf_ptr->m_parent_ptr = new_internal_ptr;
 
+        new_internal_ptr->update_depth();
+        new_leaf_ptr->update_depth();
+
         return new_internal_ptr;
     }
 }
 
-suffix_tree_node* suffix_tree::node_hops(suffix_tree_node* start_ptr, int32_t start, int32_t size) {
+// this is the nodehops function, didnt name it that
+void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
+    suffix_tree_node* cur_ptr = start_ptr->m_parent_ptr->m_suffix_ptr;
+    if (!cur_ptr) {
+        throw std::runtime_error("unable to access grandparent suffix link in resolve_missing_suffix_link()");
+    }
+    int32_t i = start_ptr->m_start_idx + 1; // + 1 because we dont care about the first character
+    int32_t j = start_ptr->m_start_idx + start_ptr->m_size; // the index we need to stop at
+
+    // The actual hopping down, guess this is why its called node hops
+    while (i < j) {
+        cur_ptr = cur_ptr->get_child_ptr(this->m_str, i);
+        i += cur_ptr->m_size;
+    }
+
+    if (i == j) {
+        // The suffix link already existed, and we just found it :)
+        start_ptr->m_suffix_ptr = cur_ptr;
+    } else {
+        // We need to break the edge to make the suffix link
+        suffix_tree_node* new_internal_ptr = new suffix_tree_node();
+
+        // link up the new internal pointer
+
+        new_internal_ptr->m_parent_ptr = cur_ptr->m_parent_ptr;
+        new_internal_ptr->m_sibling_ptr = cur_ptr->m_sibling_ptr;
+        new_internal_ptr->m_child_ptr = cur_ptr;
+
+        // link up the current pointer
+
+        if (cur_ptr->m_parent_ptr->m_child_ptr == cur_ptr) {
+            cur_ptr->m_parent_ptr->m_child_ptr = new_internal_ptr;
+        } else {
+            suffix_tree_node* cur_child_ptr = cur_ptr->m_parent_ptr->m_child_ptr;
+            while (cur_child_ptr) {
+                if (cur_child_ptr->m_sibling_ptr == cur_ptr) {
+                    cur_child_ptr->m_sibling_ptr = new_internal_ptr;
+                    break;
+                }
+                cur_child_ptr = cur_child_ptr->m_sibling_ptr;
+            }
+        }
+
+        cur_ptr->m_parent_ptr = new_internal_ptr;
+        cur_ptr->m_sibling_ptr = nullptr;
+
+        // update numeric values
+
+        const int32_t difference = i - j;
+
+        new_internal_ptr->m_start_idx = cur_ptr->m_start_idx;
+        new_internal_ptr->m_size = cur_ptr->m_size - difference;
+        cur_ptr->m_size = difference;
+        cur_ptr->m_start_idx = j;
+        new_internal_ptr->update_depth();
+
+        start_ptr->m_suffix_ptr = new_internal_ptr;
+    }
 }
 
 int32_t suffix_tree::get_number_leaf_nodes(void) {

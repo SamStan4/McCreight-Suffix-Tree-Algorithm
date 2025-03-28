@@ -26,13 +26,14 @@ private:
 
     suffix_tree_node* find_path_and_insert(suffix_tree_node* cur_ptr, int32_t idx);
 
-    suffix_tree_node* node_hops(suffix_tree_node* start_ptr, int32_t start, int32_t end);
-
     void get_number_leaf_nodes_helper(suffix_tree_node* cur_ptr, int32_t& leaf_node_count);
 
     void get_number_internal_nodes_helper(suffix_tree_node* cur_ptr, int32_t& internal_node_count);
 
     bool compare_indicies(int32_t i, int32_t j) const;
+
+    // node hops
+    void resolve_missing_suffix_link(suffix_tree_node* start_ptr);
 };
 
 #endif
