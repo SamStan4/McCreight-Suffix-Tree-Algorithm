@@ -1,0 +1,1 @@
+# McCreight-Suffix-Tree-Algorithm
