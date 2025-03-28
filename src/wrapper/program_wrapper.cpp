@@ -20,5 +20,6 @@ void program_wrapper::run_program(const int arg_count, const char* const* arg_ve
         std::cerr << "error loading gene" << std::endl;
         return;
     }
-    suffix_tree tree(gene_string, alphabet_string);
+    suffix_tree tree(alphabet_string, gene_string);
+    tree.print(std::cout);
 }

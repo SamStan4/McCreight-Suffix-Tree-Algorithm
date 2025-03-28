@@ -7,6 +7,10 @@ suffix_tree_node::suffix_tree_node()
 
 suffix_tree_node::~suffix_tree_node() {}
 
+bool suffix_tree_node::is_leaf(void) {
+    return this->m_child_ptr == nullptr;
+}
+
 suffix_tree_node* suffix_tree_node::get_child_ptr(const std::string& str, int32_t idx) {
     const char target_char = str[idx];
     suffix_tree_node* cur_child = this->m_child_ptr;

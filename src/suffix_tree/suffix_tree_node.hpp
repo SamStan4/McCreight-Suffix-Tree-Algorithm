@@ -11,6 +11,9 @@ public:
     ~suffix_tree_node();
 
     suffix_tree_node* get_child_ptr(const std::string&, int32_t);
+
+    bool is_leaf(void);
+    
 private:
     suffix_tree_node* m_child_ptr;
     suffix_tree_node* m_sibling_ptr;
