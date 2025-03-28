@@ -47,6 +47,27 @@ suffix_tree_node* suffix_tree::node_hops(suffix_tree_node* node_ptr, std::pair<i
     }
 }
 
+suffix_tree_node* suffix_tree::find_path(suffix_tree_node* node_ptr, std::pair<int32_t, int32_t>& g, suffix_tree_node*& p) {
+    suffix_tree_node* cur_ptr = node_ptr;
+    suffix_tree_node* return_ptr = nullptr;
+    while (g.first <= g.second) {
+        suffix_tree_node* cur_child_ptr = cur_ptr->m_child_ptr;
+        while (cur_child_ptr && this->m_string[cur_child_ptr->m_start] != this->m_string[g.first]) {
+            cur_child_ptr = cur_child_ptr->m_sibling_ptr;
+        }
+        if (!cur_child_ptr) {
+            p = nullptr;
+            return_ptr = cur_ptr;
+            break;
+        } else {
+            int32_t inter = g.first + (cur_child_ptr->m_end - cur_child_ptr->m_start);
+            int32_t dist = 0;
+            
+        }
+    }
+    return return_ptr;
+}
+
 void suffix_tree::build_suffix_tree_mccreight() {
 }
 

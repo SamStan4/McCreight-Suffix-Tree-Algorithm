@@ -13,6 +13,7 @@ private:
 
     void build_suffix_tree_mccreight();
     suffix_tree_node* node_hops(suffix_tree_node* node_ptr, std::pair<int32_t, int32_t> b);
+    suffix_tree_node* find_path(suffix_tree_node* node_ptr, std::pair<int32_t, int32_t>& g, suffix_tree_node*& p);
 public:
     suffix_tree(const std::string&, const std::string&);
     ~suffix_tree();
