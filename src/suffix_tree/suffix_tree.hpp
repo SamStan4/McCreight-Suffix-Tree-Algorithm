@@ -9,6 +9,9 @@ public:
     suffix_tree(const std::string&, const std::string&);
     ~suffix_tree();
     void print(std::ostream& os);
+
+    int32_t get_number_leaf_nodes(void);
+    int32_t get_number_internal_nodes(void);
 private:
     suffix_tree_node* m_root_ptr;
     std::string m_alphabet;
@@ -20,7 +23,7 @@ private:
 
     void build_tree_mccreight();
 
-    suffix_tree_node* find_path(suffix_tree_node* cur_ptr, int32_t idx);
+    suffix_tree_node* find_path(suffix_tree_node* cur_ptr, int32_t idx, int32_t& pos);
 };
 
 #endif
