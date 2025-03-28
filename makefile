@@ -1,12 +1,12 @@
-CC        := gcc
-CFLAGS    := -Wall -Wextra -std=c11 -Iinclude
+CXX       := g++
+CXXFLAGS  := -Wall -Wextra -std=c++17 -Iinclude
 
 SRCDIR    := src
 OBJDIR    := obj
 BINDIR    := bin
 
-SOURCES   := $(shell find $(SRCDIR) -name '*.c')
-OBJECTS   := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
+SOURCES   := $(shell find $(SRCDIR) -name '*.cpp')
+OBJECTS   := $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
 
 TARGET        := $(BINDIR)/app
 DEBUG_TARGET  := $(BINDIR)/app_debug
@@ -15,11 +15,11 @@ all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	@mkdir -p $(BINDIR)
-	$(CC) $(OBJECTS) -o $(TARGET)
+	$(CXX) $(OBJECTS) -o $(TARGET)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJDIR)/* $(BINDIR)/*
@@ -48,9 +48,9 @@ run_mississippi: $(TARGET)
 		exit 1; \
 	fi
 
-debug: CFLAGS += -g -O0
+debug: CXXFLAGS += -g -O0
 debug: $(DEBUG_TARGET)
 
 $(DEBUG_TARGET): $(OBJECTS)
 	@mkdir -p $(BINDIR)
-	$(CC) $(OBJECTS) -o $(DEBUG_TARGET)
+	$(CXX) $(OBJECTS) -o $(DEBUG_TARGET)
