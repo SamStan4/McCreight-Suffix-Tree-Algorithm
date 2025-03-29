@@ -18,22 +18,20 @@ void program_wrapper::run_program(const int arg_count, const char* const* arg_ve
         std::cerr << "error loading alphabet" << std::endl;
         return;
     }
-    // if (!io_utils::load_one_gene(arg_vector[2], gene_string)) {
-    //     std::cerr << "error loading gene" << std::endl;
-    //     return;
-    // }
-    if (!io_utils::load_one_gene("inputs/genes/Opsin1_colorblindness_gene.fasta", gene_string)) {
+    if (!io_utils::load_one_gene(arg_vector[2], gene_string)) {
         std::cerr << "error loading gene" << std::endl;
         return;
     }
 
-    auto start = std::chrono::high_resolution_clock::now();
+    // auto start = std::chrono::high_resolution_clock::now();
 
     suffix_tree tree(alphabet_string, gene_string);
 
-    auto end = std::chrono::high_resolution_clock::now();
+    // auto end = std::chrono::high_resolution_clock::now();
 
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    // auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    std::cout << "Time taken: " << duration.count() << " ms" << std::endl;
+    // std::cout << "Time taken: " << duration.count() << " ms" << std::endl;
+
+    tree.print_ptrs(std::cout);
 }

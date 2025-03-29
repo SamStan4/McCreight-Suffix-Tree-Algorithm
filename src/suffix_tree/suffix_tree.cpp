@@ -67,9 +67,14 @@ void suffix_tree::build_tree_mccreight() {
     const int32_t str_size = (int32_t)this->m_str.size();
     suffix_tree_node* internal_ptr = this->m_root_ptr;
     for (int32_t i = 0; i < str_size; ++i) {
-        // if (!internal_ptr->m_suffix_ptr) {
-        //     this->resolve_missing_suffix_link(internal_ptr);
-        // }
+        this->print_ptrs(std::cout);
+        std::cout << "\n\n";
+        if (i == 6) {
+            std::cout << "";
+        }
+        if (!internal_ptr->m_suffix_ptr) {
+            this->resolve_missing_suffix_link(internal_ptr);
+        }
         internal_ptr = this->find_path_and_insert(this->m_root_ptr, i);
     }
 }
@@ -147,39 +152,102 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i
 }
 
 // this is the nodehops function, didnt name it that
+// void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
+//     suffix_tree_node* parent_ptr = start_ptr->m_parent_ptr;
+//     if (!parent_ptr->m_suffix_ptr) {
+//         this->resolve_missing_suffix_link(parent_ptr);
+//     }
+//     suffix_tree_node* cur_ptr = parent_ptr->m_suffix_ptr;
+//     suffix_tree_node* cur_ptr_2 = parent_ptr;
+
+//     // I cant solve this
+//     int32_t i = parent_ptr->m_start_idx + 1; // + 1 because we dont care about the first character
+//     int32_t j = start_ptr->m_start_idx + start_ptr->m_size; // the index we need to stop at
+//     int32_t k = 0;
+
+//     // The actual hopping down, guess this is why its called node hops
+//     while (i < j) {
+//         cur_ptr = cur_ptr->get_child_ptr(this->m_str, i);
+//         i += cur_ptr->m_size;
+//     }
+
+//     if (i == j) {
+//         // The suffix link already existed, and we just found it :)
+//         start_ptr->m_suffix_ptr = cur_ptr;
+//     } else {
+//         // We need to break the edge to make the suffix link
+//         suffix_tree_node* new_internal_ptr = new suffix_tree_node();
+
+//         // link up the new internal pointer
+
+//         new_internal_ptr->m_parent_ptr = cur_ptr->m_parent_ptr;
+//         new_internal_ptr->m_sibling_ptr = cur_ptr->m_sibling_ptr;
+//         new_internal_ptr->m_child_ptr = cur_ptr;
+
+//         // link up the current pointer
+
+//         if (cur_ptr->m_parent_ptr->m_child_ptr == cur_ptr) {
+//             cur_ptr->m_parent_ptr->m_child_ptr = new_internal_ptr;
+//         } else {
+//             suffix_tree_node* cur_child_ptr = cur_ptr->m_parent_ptr->m_child_ptr;
+//             while (cur_child_ptr) {
+//                 if (cur_child_ptr->m_sibling_ptr == cur_ptr) {
+//                     cur_child_ptr->m_sibling_ptr = new_internal_ptr;
+//                     break;
+//                 }
+//                 cur_child_ptr = cur_child_ptr->m_sibling_ptr;
+//             }
+//         }
+
+//         cur_ptr->m_parent_ptr = new_internal_ptr;
+//         cur_ptr->m_sibling_ptr = nullptr;
+
+//         // update numeric values
+
+//         const int32_t difference = i - j;
+
+//         new_internal_ptr->m_start_idx = cur_ptr->m_start_idx;
+//         new_internal_ptr->m_size = cur_ptr->m_size - difference;
+//         cur_ptr->m_size = difference;
+//         cur_ptr->m_start_idx = j;
+//         new_internal_ptr->update_depth();
+
+//         start_ptr->m_suffix_ptr = new_internal_ptr;
+//     }
+// }
+
 void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
     suffix_tree_node* parent_ptr = start_ptr->m_parent_ptr;
     if (!parent_ptr->m_suffix_ptr) {
         this->resolve_missing_suffix_link(parent_ptr);
     }
     suffix_tree_node* cur_ptr = parent_ptr->m_suffix_ptr;
-    suffix_tree_node* cur_ptr_2 = parent_ptr;
 
-    // I cant solve this
-    int32_t i = parent_ptr->m_start_idx + 1; // + 1 because we dont care about the first character
-    int32_t j = start_ptr->m_start_idx + start_ptr->m_size; // the index we need to stop at
-    int32_t k = 0;
+    std::string str = (this->m_str.substr(parent_ptr->m_start_idx, parent_ptr->m_size) + this->m_str.substr(start_ptr->m_start_idx, start_ptr->m_size)).substr(1);
 
-    // The actual hopping down, guess this is why its called node hops
-    while (i < j) {
-        cur_ptr = cur_ptr->get_child_ptr(this->m_str, i);
+    // std::cout << str << std::endl;
+
+    if (str.size() == 0) {
+        start_ptr->m_suffix_ptr = this->m_root_ptr;
+        return;
+    }
+
+    int32_t i = 0;// + cur_ptr->m_size;
+    int32_t target_depth = start_ptr->m_depth - 1;
+
+    while (i < str.size()) {
+        cur_ptr = cur_ptr->get_child_ptr(str, this->m_str, i);
         i += cur_ptr->m_size;
     }
 
-    if (i == j) {
-        // The suffix link already existed, and we just found it :)
+    if (i == str.size()) {
         start_ptr->m_suffix_ptr = cur_ptr;
     } else {
-        // We need to break the edge to make the suffix link
         suffix_tree_node* new_internal_ptr = new suffix_tree_node();
-
-        // link up the new internal pointer
 
         new_internal_ptr->m_parent_ptr = cur_ptr->m_parent_ptr;
         new_internal_ptr->m_sibling_ptr = cur_ptr->m_sibling_ptr;
         new_internal_ptr->m_child_ptr = cur_ptr;
-
-        // link up the current pointer
 
         if (cur_ptr->m_parent_ptr->m_child_ptr == cur_ptr) {
             cur_ptr->m_parent_ptr->m_child_ptr = new_internal_ptr;
@@ -197,14 +265,12 @@ void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
         cur_ptr->m_parent_ptr = new_internal_ptr;
         cur_ptr->m_sibling_ptr = nullptr;
 
-        // update numeric values
-
-        const int32_t difference = i - j;
-
         new_internal_ptr->m_start_idx = cur_ptr->m_start_idx;
-        new_internal_ptr->m_size = cur_ptr->m_size - difference;
-        cur_ptr->m_size = difference;
-        cur_ptr->m_start_idx = j;
+        new_internal_ptr->m_size = target_depth - new_internal_ptr->m_parent_ptr->m_depth;
+
+        cur_ptr->m_start_idx += new_internal_ptr->m_size;
+        cur_ptr->m_size -= new_internal_ptr->m_size;
+
         new_internal_ptr->update_depth();
 
         start_ptr->m_suffix_ptr = new_internal_ptr;

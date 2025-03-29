@@ -13,6 +13,8 @@ public:
 
     suffix_tree_node* get_child_ptr(const std::string&, int32_t);
 
+    suffix_tree_node* get_child_ptr(const std::string& s1, const std::string& s2, int32_t idx);
+
     bool is_leaf(void);
 
 private:

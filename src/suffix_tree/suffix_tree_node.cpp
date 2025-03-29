@@ -23,6 +23,18 @@ suffix_tree_node* suffix_tree_node::get_child_ptr(const std::string& str, int32_
     return cur_child;
 }
 
+suffix_tree_node* suffix_tree_node::get_child_ptr(const std::string& s1, const std::string& s2, int32_t idx) {
+    const char target = s1[idx];
+    suffix_tree_node* cur_child = this->m_child_ptr;
+    while (cur_child) {
+        if (s2[cur_child->m_start_idx] == target) {
+            break;
+        }
+        cur_child = cur_child->m_sibling_ptr;
+    }
+    return cur_child;
+}
+
 void suffix_tree_node::update_depth(void) {
     this->m_depth = this->m_parent_ptr->m_depth + this->m_size;
 }
