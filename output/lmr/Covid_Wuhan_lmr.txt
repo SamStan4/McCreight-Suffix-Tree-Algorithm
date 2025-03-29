@@ -1,0 +1,6 @@
+start1: 29870
+start2: 29871
+size: 32
+
+string: 
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA

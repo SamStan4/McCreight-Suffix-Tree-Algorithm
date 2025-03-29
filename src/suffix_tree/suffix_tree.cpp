@@ -1,5 +1,7 @@
 #include "./suffix_tree.hpp"
 
+#include <functional>
+
 suffix_tree::suffix_tree(const std::string& _alphabet, const std::string& _str)
     : m_root_ptr(new suffix_tree_node()), cur_leaf_idx(0), m_alphabet(_alphabet), m_str(_str) {
     this->m_root_ptr->m_parent_ptr = this->m_root_ptr;
@@ -352,4 +354,37 @@ void suffix_tree::get_leaf_ptrs(suffix_tree_node* cur_ptr, std::vector<suffix_tr
     for (auto ptr : ptrs) {
         this->get_leaf_ptrs(ptr, lst);
     }
+}
+
+void suffix_tree::get_longest_repeating_substring(std::ostream& os) {
+    // I use this library a lot on leetcode problems
+    std::function<void(suffix_tree_node*, suffix_tree_node*&)> find_deepest_internal = [&find_deepest_internal](suffix_tree_node* cur_ptr, suffix_tree_node*& deep_node) -> void {
+        if (!cur_ptr) {
+            return;
+        }
+
+        if (!cur_ptr->is_leaf()) {
+            if (cur_ptr->m_depth > deep_node->m_depth) {
+                deep_node = cur_ptr;
+            }
+        }
+
+        find_deepest_internal(cur_ptr->m_child_ptr, deep_node);
+        find_deepest_internal(cur_ptr->m_sibling_ptr, deep_node);
+    };
+
+    suffix_tree_node* deep_node = this->m_root_ptr;
+
+    find_deepest_internal(this->m_root_ptr, deep_node);
+
+    std::string long_string = this->get_string(deep_node);
+
+    size_t pos1 = this->m_str.find(long_string);
+
+    size_t pos2 = this->m_str.find(long_string, pos1 + 1);
+
+    os << "start1: " << pos1 << std::endl
+       << "start2: " << pos2 << std::endl
+       << "size: " << long_string.size() << std::endl << std::endl
+       << "string: " << std::endl << long_string << std::endl;
 }

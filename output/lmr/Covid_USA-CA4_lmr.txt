@@ -1,0 +1,6 @@
+start1: 5955
+start2: 20147
+size: 17
+
+string: 
+CAATTATTATAAGAAAG

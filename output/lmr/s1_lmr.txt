@@ -1,0 +1,6 @@
+start1: 1
+start2: 3
+size: 3
+
+string: 
+ANA

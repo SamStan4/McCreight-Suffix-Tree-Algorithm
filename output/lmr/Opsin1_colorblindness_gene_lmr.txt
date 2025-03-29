@@ -1,0 +1,6 @@
+start1: 1810
+start2: 1817
+size: 18
+
+string: 
+AAAATTAAAAATTAAAAA

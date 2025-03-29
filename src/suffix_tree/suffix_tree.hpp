@@ -20,6 +20,8 @@ public:
     int32_t cur_leaf_idx;
 
     void write_BWT(std::ostream& os);
+
+    void get_longest_repeating_substring(std::ostream& os);
 private:
     suffix_tree_node* m_root_ptr;
     std::string m_alphabet;
@@ -46,6 +48,7 @@ private:
     void resolve_missing_suffix_link(suffix_tree_node* start_ptr);
 
     std::string get_string(suffix_tree_node* ptr);
+
 };
 
 #endif

@@ -1,0 +1,6 @@
+start1: 1
+start2: 4
+size: 4
+
+string: 
+ISSI
