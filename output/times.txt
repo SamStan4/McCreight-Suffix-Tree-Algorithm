@@ -1,0 +1,29 @@
+s1:
+0 ms
+
+s2:
+0ms
+
+chr12:
+1543 ms
+
+Covid_Australia:
+9ms
+
+Covid_Brazil:
+9ms
+
+Covid_India:
+9ms
+
+Covid_USA-CA4:
+9ms
+
+Covid_Wuhan:
+9ms
+
+Human-BRCA2-cds:
+3ms
+
+Opsin1_colorblindness_gene:
+0ms
