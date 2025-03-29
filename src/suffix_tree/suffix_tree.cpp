@@ -1,7 +1,7 @@
 #include "./suffix_tree.hpp"
 
 suffix_tree::suffix_tree(const std::string& _alphabet, const std::string& _str)
-    : m_root_ptr(new suffix_tree_node()), m_alphabet(_alphabet), m_str(_str) {
+    : m_root_ptr(new suffix_tree_node()), cur_leaf_idx(0), m_alphabet(_alphabet), m_str(_str) {
     this->m_root_ptr->m_parent_ptr = this->m_root_ptr;
     this->m_root_ptr->m_suffix_ptr = this->m_root_ptr;
     this->m_str.push_back('$');
@@ -39,7 +39,7 @@ void suffix_tree::print_helper(std::ostream& os, suffix_tree_node* cur_ptr, std:
        << " (" << cur_ptr->m_start_idx << ", " << cur_ptr->m_size << ")";
 
     if (cur_ptr->is_leaf()) {
-        os << " \"" << suffix << "\"";
+        os << " \"" << this->get_string(cur_ptr) << "\"";
     }
 
     os << std::endl;
@@ -65,9 +65,9 @@ void suffix_tree::build_tree_mccreight() {
     const int32_t str_size = (int32_t)this->m_str.size();
     suffix_tree_node* internal_ptr = this->m_root_ptr;
     for (int32_t i = 0; i < str_size; ++i) {
-        if (!internal_ptr->m_suffix_ptr) {
-            this->resolve_missing_suffix_link(internal_ptr);
-        }
+        // if (!internal_ptr->m_suffix_ptr) {
+        //     this->resolve_missing_suffix_link(internal_ptr);
+        // }
         internal_ptr = this->find_path_and_insert(this->m_root_ptr, i);
     }
 }
@@ -87,6 +87,7 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i
             return this->find_path_and_insert(next_ptr, j);
         } else {
             suffix_tree_node* new_leaf_ptr = new suffix_tree_node();
+            new_leaf_ptr->id = this->cur_leaf_idx++;
             new_leaf_ptr->m_start_idx = j;
             new_leaf_ptr->m_size = (int32_t)this->m_str.size() - j;
             new_leaf_ptr->m_parent_ptr = cur_ptr;
@@ -98,6 +99,8 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i
     } else {
         suffix_tree_node* new_internal_ptr = new suffix_tree_node();
         suffix_tree_node* new_leaf_ptr = new suffix_tree_node();
+
+        new_leaf_ptr->id = this->cur_leaf_idx++;
 
         // link internal pointer first
 
@@ -143,12 +146,17 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, i
 
 // this is the nodehops function, didnt name it that
 void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
-    suffix_tree_node* cur_ptr = start_ptr->m_parent_ptr->m_suffix_ptr;
-    if (!cur_ptr) {
-        throw std::runtime_error("unable to access grandparent suffix link in resolve_missing_suffix_link()");
+    suffix_tree_node* parent_ptr = start_ptr->m_parent_ptr;
+    if (!parent_ptr->m_suffix_ptr) {
+        this->resolve_missing_suffix_link(parent_ptr);
     }
-    int32_t i = start_ptr->m_start_idx + 1; // + 1 because we dont care about the first character
+    suffix_tree_node* cur_ptr = parent_ptr->m_suffix_ptr;
+    suffix_tree_node* cur_ptr_2 = parent_ptr;
+
+    // I cant solve this
+    int32_t i = parent_ptr->m_start_idx + 1; // + 1 because we dont care about the first character
     int32_t j = start_ptr->m_start_idx + start_ptr->m_size; // the index we need to stop at
+    int32_t k = 0;
 
     // The actual hopping down, guess this is why its called node hops
     while (i < j) {
@@ -248,4 +256,100 @@ bool suffix_tree::compare_indicies(int32_t i, int32_t j) const {
         throw std::runtime_error("error in compare_indicies");
     }
     return this->m_str[i] == this->m_str[j];
+}
+
+void suffix_tree::print_ptrs(std::ostream& os) {
+    std::string str1;
+    std::string str2;
+    this->print_ptrs_helper(os, this->m_root_ptr, str1, str2);
+
+}
+
+void suffix_tree::print_ptrs_helper(std::ostream& os, suffix_tree_node* cur_ptr, std::string& prefix, std::string& suffix) {
+    if (!cur_ptr) {
+        return;
+    }
+
+    os << prefix;
+    os << (!cur_ptr->m_sibling_ptr ? "└── " : "├── ");
+    os << (cur_ptr->is_leaf() ? "[Leaf]" : "[Internal]") 
+       << " <cur(" << cur_ptr << "), parent(" << cur_ptr->m_parent_ptr << "), child("
+       << cur_ptr->m_child_ptr << "), sibling(" << cur_ptr->m_sibling_ptr << "), sl("
+       << cur_ptr->m_suffix_ptr << ")> (" << cur_ptr->m_start_idx << ", " << cur_ptr->m_size << ", " << cur_ptr->m_depth << ")";
+
+    // if (cur_ptr->is_leaf()) {
+        os << " \"" << suffix << "\"";
+    // }
+
+    os << std::endl;    
+
+    const size_t prefix_cur_size = prefix.size();
+    const size_t suffix_cur_size = suffix.size();
+
+    prefix += (!cur_ptr->m_sibling_ptr ? "    " : "│   ");
+
+    suffix_tree_node* cur_child = cur_ptr->m_child_ptr;
+
+    while (cur_child) {
+        suffix += this->m_str.substr(cur_child->m_start_idx, cur_child->m_size);
+        this->print_ptrs_helper(os, cur_child, prefix, suffix);
+        suffix.resize(suffix_cur_size);
+        cur_child = cur_child->m_sibling_ptr;
+    }
+
+    prefix.resize(prefix_cur_size);
+}
+
+std::string suffix_tree::get_string(suffix_tree_node* ptr) {
+    suffix_tree_node* cur_ptr = ptr;
+    std::string str;
+    while (cur_ptr != this->m_root_ptr) {
+        std::string substr = this->m_str.substr(cur_ptr->m_start_idx, cur_ptr->m_size);
+        std::reverse(substr.begin(), substr.end());
+        str += substr;
+        cur_ptr = cur_ptr->m_parent_ptr;
+    }
+    std::reverse(str.begin(), str.end());
+    return str;
+}
+
+void suffix_tree::write_BWT(std::ostream& os) {
+    std::vector<suffix_tree_node*> leaf_ptrs;
+    this->get_leaf_ptrs(this->m_root_ptr, leaf_ptrs);
+    for (size_t i = 0; i < leaf_ptrs.size(); ++i) {
+        if (leaf_ptrs[i]->id == 0) {
+            os << "$\n";
+        } else {
+            os << this->m_str[leaf_ptrs[i]->id - 1] << std::endl;
+        }
+    }
+}
+
+void suffix_tree::get_leaf_ptrs(suffix_tree_node* cur_ptr, std::vector<suffix_tree_node*>& lst) {
+    if (!cur_ptr) {
+        return;
+    } else if (cur_ptr->is_leaf()) {
+        lst.push_back(cur_ptr);
+        return;
+    }
+
+    std::vector<suffix_tree_node*> ptrs;
+    suffix_tree_node* cur_child = cur_ptr->m_child_ptr;
+    while (cur_child) {
+        ptrs.push_back(cur_child);
+        cur_child = cur_child->m_sibling_ptr;
+    }
+
+    std::sort(ptrs.begin(), ptrs.end(), [this](suffix_tree_node* p1, suffix_tree_node* p2) {
+        if (this->m_str[p1->m_start_idx] == '$') {
+            return true;
+        } else if (this->m_str[p1->m_start_idx] == '$') {
+            return false;
+        }
+        return this->m_str[p1->m_start_idx] < this->m_str[p2->m_start_idx];
+    });
+
+    for (auto ptr : ptrs) {
+        this->get_leaf_ptrs(ptr, lst);
+    }
 }

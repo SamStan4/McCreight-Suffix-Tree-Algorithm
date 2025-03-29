@@ -2,6 +2,7 @@
 #define __SUFFIX_TREE_NODE_HPP__
 
 #include <string>
+#include <algorithm>
 
 class suffix_tree;
 
@@ -23,6 +24,8 @@ private:
     int32_t m_start_idx;
     int32_t m_size;
     int32_t m_depth;
+
+    int32_t id;
 
     friend class suffix_tree;
 

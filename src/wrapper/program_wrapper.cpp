@@ -16,13 +16,24 @@ void program_wrapper::run_program(const int arg_count, const char* const* arg_ve
         std::cerr << "error loading alphabet" << std::endl;
         return;
     }
-    if (!io_utils::load_one_gene(arg_vector[2], gene_string)) {
+    // if (!io_utils::load_one_gene(arg_vector[2], gene_string)) {
+    //     std::cerr << "error loading gene" << std::endl;
+    //     return;
+    // }
+    if (!io_utils::load_one_gene("inputs/genes/Human-BRCA2-cds.fasta", gene_string)) {
         std::cerr << "error loading gene" << std::endl;
         return;
     }
+
     suffix_tree tree(alphabet_string, gene_string);
-    tree.print(std::cout);
-    std::cout << tree.get_str_size() << std::endl;
-    std::cout << tree.get_number_leaf_nodes() << std::endl;
-    std::cout << tree.get_number_internal_nodes() << std::endl;
+    // tree.print(std::cout);
+    // std::cout << tree.get_str_size() << std::endl;
+    // std::cout << tree.get_number_leaf_nodes() << std::endl;
+    // std::cout << tree.get_number_internal_nodes() << std::endl;
+    // tree.write_BWT(std::cout);
+    std::ofstream of("./output/bwt/Human-BRCA2-cds.txt", std::ios::out);
+    if (!of.is_open()) {
+        throw std::runtime_error("");
+    }
+    tree.write_BWT(of);
 }
