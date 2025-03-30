@@ -1,40 +1,27 @@
 #include "./suffix_tree_node.hpp"
 
+// MARK - Public Methods
+
+/**
+ * Constructor for the suffix tree node, nothing special here
+ */
 suffix_tree_node::suffix_tree_node()
-    : m_child_ptr(nullptr), m_sibling_ptr(nullptr),
-      m_parent_ptr(nullptr), m_suffix_ptr(nullptr),
-      m_start_idx(0), m_size(0), m_depth(0), id(-1) {}
-
-suffix_tree_node::~suffix_tree_node() {}
-
-bool suffix_tree_node::is_leaf(void) {
-    return this->m_child_ptr == nullptr;
+  : m_parent_ptr(nullptr), m_child_ptr(nullptr), m_next_sibling_ptr(nullptr), m_prev_sibling_ptr(nullptr), m_suffix_link_ptr(nullptr),
+  m_start_idx(0), m_size(0), m_depth(0), m_id(-1) {
 }
 
-suffix_tree_node* suffix_tree_node::get_child_ptr(const std::string& str, int32_t idx) {
-    const char target_char = str[idx];
-    suffix_tree_node* cur_child = this->m_child_ptr;
-    while (cur_child) {
-        if (str[cur_child->m_start_idx] == target_char) {
-            break;
-        }
-        cur_child = cur_child->m_sibling_ptr;
-    }
-    return cur_child;
+/**
+ * Destructor for the suffix tree node, nothing happens here
+ */
+suffix_tree_node::~suffix_tree_node() {
 }
 
-suffix_tree_node* suffix_tree_node::get_child_ptr(const std::string& s1, const std::string& s2, int32_t idx) {
-    const char target = s1[idx];
-    suffix_tree_node* cur_child = this->m_child_ptr;
-    while (cur_child) {
-        if (s2[cur_child->m_start_idx] == target) {
-            break;
-        }
-        cur_child = cur_child->m_sibling_ptr;
-    }
-    return cur_child;
+/**
+ * Returns the substring that this node represents
+ * @param str this is the string that the suffix tree is being made from
+ */
+std::string suffix_tree_node::get_string(const std::string& str) {
+  return str.substr(this->m_start_idx, this->m_size);
 }
 
-void suffix_tree_node::update_depth(void) {
-    this->m_depth = this->m_parent_ptr->m_depth + this->m_size;
-}
+// MARK - Private Methods
