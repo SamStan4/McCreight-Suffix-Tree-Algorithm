@@ -7,13 +7,14 @@
 #include <cassert>
 #include "./suffix_tree_node.hpp"
 
-#define USE_NAIVE_ALG false
+#define USE_NAIVE_ALG 1
 
 class suffix_tree {
 public:
   suffix_tree(const std::string& _str, const std::string& _alphabet);
   ~suffix_tree();
   void print_tree(std::ostream&);
+  void advanced_print_tree(std::ostream&);
 private:
   // This is a pointer to the root node of the tree
   suffix_tree_node* m_root_ptr;

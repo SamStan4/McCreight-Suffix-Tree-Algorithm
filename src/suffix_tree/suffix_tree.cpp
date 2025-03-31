@@ -58,25 +58,52 @@ void suffix_tree::print_tree(std::ostream& os) {
   print_helper(this->m_root_ptr);
 }
 
+void suffix_tree::advanced_print_tree(std::ostream& os) {
+  std::string prefix;
+  std::string suffix;
+  const std::function<void(suffix_tree_node*)> advanced_print_helper = [&advanced_print_helper, &os, &prefix, &suffix, this](suffix_tree_node* cur_ptr) -> void {
+    if (!cur_ptr) return;
+    os
+      << prefix
+      << (!cur_ptr->m_next_sibling_ptr ? "└── " : "├── ")
+      << (!cur_ptr->m_child_ptr ? "[Leaf]" : "[Internal]")
+      << " (" << cur_ptr->m_start_idx << ", " << cur_ptr->m_size << ", " << cur_ptr->m_depth
+      << ") <self(" << cur_ptr << "), parent(" << cur_ptr->m_parent_ptr << "), child(" << cur_ptr->m_child_ptr
+      << "), prev_sib(" << cur_ptr->m_prev_sibling_ptr << "), next_sib(" << cur_ptr->m_next_sibling_ptr << "), suffix_link(" << cur_ptr->m_suffix_link_ptr << ")>"
+      << " \"" << suffix << "\"" << std::endl;
+    const size_t prefix_size = prefix.size();
+    const size_t suffix_size = suffix.size();
+    prefix += (cur_ptr->m_next_sibling_ptr ? "│   " : "    ");
+    cur_ptr = cur_ptr->m_child_ptr;
+    while (cur_ptr) {
+      suffix += cur_ptr->get_string(this->m_str);
+      advanced_print_helper(cur_ptr);
+      suffix.resize(suffix_size);
+      cur_ptr = cur_ptr->m_next_sibling_ptr;
+    }
+    prefix.resize(prefix_size);
+  };
+  advanced_print_helper(this->m_root_ptr);
+}
+
 /**
  * Iterates through all suffixes and inserts them
  */
 void suffix_tree::build_tree() {
   const size_t str_size = this->m_str.size();
 
-  #if !USE_NAIVE_ALG
+  // #if !USE_NAIVE_ALG
     // This is going to be used for suffix links
     suffix_tree_node* internal_ptr = this->m_root_ptr;
-  #endif
+  // #endif
 
   for (size_t i = 0; i < str_size; ++i) {
     #if USE_NAIVE_ALG
-      this->find_path_and_insert(this->m_root_ptr, i);
+      internal_ptr = this->find_path_and_insert(this->m_root_ptr, i);
     #else
       if (!internal_ptr->m_suffix_link_ptr)
         this->resolve_missing_suffix_link(internal_ptr);
       internal_ptr = this->find_path_and_insert(internal_ptr->m_suffix_link_ptr, i + internal_ptr->m_suffix_link_ptr->m_depth);
-      // internal_ptr = this->find_path_and_insert(this->m_root_ptr, i);
     #endif
   }
 }
@@ -149,6 +176,7 @@ void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
     start_ptr->m_suffix_link_ptr = this->split_edge(suffix_link_candidate, match_length);
   }
 }
+
 /**
  * Splits the edge, go figure
  * The doubly linked list makes this an O(1) function :)
