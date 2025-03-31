@@ -163,6 +163,7 @@ void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
   if (!start_ptr->m_parent_ptr->m_suffix_link_ptr) {
     this->resolve_missing_suffix_link(start_ptr->m_parent_ptr);
   }
+  // check if str.size == 1 or 0 TODO
   // Take the parent's suffix link
   suffix_tree_node* cur_ptr = start_ptr->m_parent_ptr->m_suffix_link_ptr;
   while (k < j) {
