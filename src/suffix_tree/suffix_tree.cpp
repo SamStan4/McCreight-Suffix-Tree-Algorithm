@@ -180,6 +180,9 @@ void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
   }
 }
 
+suffix_tree_node* suffix_tree::node_hops(suffix_tree_node* cur_ptr, size_t start, size_t size) {
+}
+
 // void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
 //   assert(start_ptr && "FATAL ERROR, start_ptr was null inside resolve_missing_suffix_link");
 //   suffix_tree_node* parent_ptr = start_ptr->m_parent_ptr;
