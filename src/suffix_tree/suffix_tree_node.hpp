@@ -10,6 +10,8 @@ public:
   suffix_tree_node();
   ~suffix_tree_node();
   std::string get_string(const std::string& str);
+  suffix_tree_node* find_child(const std::string& str, int idx);
+  void set_depth();
 private:
   // A pointer to the suffix tree node's parent node
   suffix_tree_node* m_parent_ptr;

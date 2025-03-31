@@ -2,6 +2,9 @@
 #define __PROGRAM_WRAPPER_HPP__
 
 #include <iostream>
+#include <chrono>
+#include <vector>
+#include <fstream>
 #include "./../io/io_utils.hpp"
 #include "./../suffix_tree/suffix_tree.hpp"
 

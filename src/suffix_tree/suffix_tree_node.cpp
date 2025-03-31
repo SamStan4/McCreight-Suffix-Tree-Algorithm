@@ -24,4 +24,25 @@ std::string suffix_tree_node::get_string(const std::string& str) {
   return str.substr(this->m_start_idx, this->m_size);
 }
 
+/**
+ * Finds the child that we want
+ */
+suffix_tree_node* suffix_tree_node::find_child(const std::string& str, int idx) {
+  suffix_tree_node* cur_ptr = this->m_child_ptr;
+  while (cur_ptr) {
+    if (str[idx] == str[cur_ptr->m_start_idx]) {
+      break;
+    }
+    cur_ptr = cur_ptr->m_next_sibling_ptr;
+  }
+  return cur_ptr;
+}
+
+/**
+ * !WARNING parent pointer must be correct and its size must be correct to use this
+ */
+void suffix_tree_node::set_depth() {
+  this->m_depth = this->m_parent_ptr->m_depth + this->m_size;
+}
+
 // MARK - Private Methods

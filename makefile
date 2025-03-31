@@ -56,6 +56,15 @@ run_atgc: $(TARGET)
 		exit 1; \
 	fi
 
+run_yeast: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/chr12.fas; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+
 debug: CXXFLAGS += -g -O0
 debug: $(DEBUG_TARGET)
 
