@@ -40,7 +40,7 @@ void suffix_tree::print_tree(std::ostream& os) {
       << (!cur_ptr->m_child_ptr ? "[Leaf]" : "[Internal]")
       << " (" << cur_ptr->m_start_idx << ", " << cur_ptr->m_size << ", " << cur_ptr->m_depth << ")";
     if (!cur_ptr->m_child_ptr) {
-      // os << " \"" << suffix << "\"";
+      os << " \"" << suffix << "\"";
     }
     os << std::endl;
     const size_t prefix_size = prefix.size();
@@ -76,6 +76,7 @@ void suffix_tree::build_tree() {
       if (!internal_ptr->m_suffix_link_ptr)
         this->resolve_missing_suffix_link(internal_ptr);
       internal_ptr = this->find_path_and_insert(internal_ptr->m_suffix_link_ptr, i + internal_ptr->m_suffix_link_ptr->m_depth);
+      // internal_ptr = this->find_path_and_insert(this->m_root_ptr, i);
     #endif
   }
 }
@@ -127,11 +128,27 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, s
 
 void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
   assert(start_ptr != nullptr && "FATAL ERROR, start_ptr was null in resolve_missing_suffix_link");
-  if (!start_ptr) {
+  if (!start_ptr) return;
+  if (start_ptr == this->m_root_ptr) {
+    start_ptr->m_suffix_link_ptr = this->m_root_ptr;
     return;
+  }  suffix_tree_node* parent = start_ptr->m_parent_ptr;
+  suffix_tree_node* suffix_link_candidate = parent->m_suffix_link_ptr;
+  if (!suffix_link_candidate) {
+    resolve_missing_suffix_link(parent);
+    suffix_link_candidate = parent->m_suffix_link_ptr;
+  }
+  size_t match_length = 0;
+  while (match_length < start_ptr->m_size && match_length < suffix_link_candidate->m_size &&
+         this->m_str[suffix_link_candidate->m_start_idx + match_length] == this->m_str[start_ptr->m_start_idx + match_length]) {
+    ++match_length;
+  }
+  if (match_length == suffix_link_candidate->m_size) {
+    start_ptr->m_suffix_link_ptr = suffix_link_candidate;
+  } else {
+    start_ptr->m_suffix_link_ptr = this->split_edge(suffix_link_candidate, match_length);
   }
 }
-
 /**
  * Splits the edge, go figure
  * The doubly linked list makes this an O(1) function :)

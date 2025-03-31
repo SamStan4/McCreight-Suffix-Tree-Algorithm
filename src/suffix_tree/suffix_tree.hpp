@@ -7,7 +7,7 @@
 #include <cassert>
 #include "./suffix_tree_node.hpp"
 
-#define USE_NAIVE_ALG true
+#define USE_NAIVE_ALG false
 
 class suffix_tree {
 public:

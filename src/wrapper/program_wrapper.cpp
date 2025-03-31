@@ -33,7 +33,7 @@ void program_wrapper::run_program(const int arg_count, const char* const* arg_ve
 
     std::cout << "Time taken: " << duration.count() << " ms" << std::endl;
 
-    std::ofstream ofs("tree.txt");
+    std::ofstream ofs("tree.txt", std::ios::out);
 
     tree.print_tree(ofs);
 }
