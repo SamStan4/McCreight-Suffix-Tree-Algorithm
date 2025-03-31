@@ -34,6 +34,8 @@ private:
 
   void resolve_missing_suffix_link(suffix_tree_node*);
 
+  suffix_tree_node* node_hops(suffix_tree_node*, size_t, size_t);
+
   suffix_tree_node* split_edge(suffix_tree_node*, size_t);
 };
 
