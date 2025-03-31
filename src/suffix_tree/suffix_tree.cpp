@@ -92,14 +92,16 @@ void suffix_tree::advanced_print_tree(std::ostream& os) {
 void suffix_tree::build_tree() {
   const size_t str_size = this->m_str.size();
 
-  // #if !USE_NAIVE_ALG
+  #if !USE_NAIVE_ALG
     // This is going to be used for suffix links
     suffix_tree_node* internal_ptr = this->m_root_ptr;
-  // #endif
+  #endif
 
   for (size_t i = 0; i < str_size; ++i) {
+    // this->advanced_print_tree(std::cout);
+    // std::cout << "\n\n";
     #if USE_NAIVE_ALG
-      internal_ptr = this->find_path_and_insert(this->m_root_ptr, i);
+      this->find_path_and_insert(this->m_root_ptr, i);
     #else
       if (!internal_ptr->m_suffix_link_ptr)
         this->resolve_missing_suffix_link(internal_ptr);
@@ -123,7 +125,7 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, s
     ++i; ++j; ++k;
   }
   if (k == cur_ptr->m_size) {
-    suffix_tree_node* next_ptr = cur_ptr->find_child(this->m_str, j);
+    suffix_tree_node* next_ptr = cur_ptr->find_child(this->m_str, (size_t)j);
     if (next_ptr) {
       return this->find_path_and_insert(next_ptr, j);
     } else {
@@ -153,29 +155,87 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, s
   }
 }
 
+// Start ptr is the pointer missing it's suffix link
 void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
-  assert(start_ptr != nullptr && "FATAL ERROR, start_ptr was null in resolve_missing_suffix_link");
-  if (!start_ptr) return;
-  if (start_ptr == this->m_root_ptr) {
-    start_ptr->m_suffix_link_ptr = this->m_root_ptr;
-    return;
-  }  suffix_tree_node* parent = start_ptr->m_parent_ptr;
-  suffix_tree_node* suffix_link_candidate = parent->m_suffix_link_ptr;
-  if (!suffix_link_candidate) {
-    resolve_missing_suffix_link(parent);
-    suffix_link_candidate = parent->m_suffix_link_ptr;
+  size_t i = start_ptr->m_start_idx + (start_ptr->m_parent_ptr == this->m_root_ptr ? 1 : 0); // idx that we are at
+  size_t j = start_ptr->m_size - (start_ptr->m_parent_ptr == this->m_root_ptr ? 1 : 0); // how far we need to go
+  size_t k = 0; // How far we have went
+  if (!start_ptr->m_parent_ptr->m_suffix_link_ptr) {
+    this->resolve_missing_suffix_link(start_ptr->m_parent_ptr);
   }
-  size_t match_length = 0;
-  while (match_length < start_ptr->m_size && match_length < suffix_link_candidate->m_size &&
-         this->m_str[suffix_link_candidate->m_start_idx + match_length] == this->m_str[start_ptr->m_start_idx + match_length]) {
-    ++match_length;
+  // Take the parent's suffix link
+  suffix_tree_node* cur_ptr = start_ptr->m_parent_ptr->m_suffix_link_ptr;
+  while (k < j) {
+    // Maybe this might have to do with the case where the cur pointer is root?
+    cur_ptr = cur_ptr->find_child(this->m_str, i);
+    i += cur_ptr->m_size;
+    k += cur_ptr->m_size;
   }
-  if (match_length == suffix_link_candidate->m_size) {
-    start_ptr->m_suffix_link_ptr = suffix_link_candidate;
+  if (k == j) {
+    start_ptr->m_suffix_link_ptr = cur_ptr;
   } else {
-    start_ptr->m_suffix_link_ptr = this->split_edge(suffix_link_candidate, match_length);
+    const size_t l = cur_ptr->m_size - j + k;
+    start_ptr->m_suffix_link_ptr = this->split_edge(cur_ptr, l);
   }
 }
+
+// void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
+//   assert(start_ptr && "FATAL ERROR, start_ptr was null inside resolve_missing_suffix_link");
+//   suffix_tree_node* parent_ptr = start_ptr->m_parent_ptr;
+//   // if parent_ptr->m_suffix_link_ptr is not defined, recusivly call
+//   if (!parent_ptr->m_suffix_link_ptr) {
+//     std::cout << "impossible case reached" << std::endl;
+//     this->resolve_missing_suffix_link(parent_ptr);
+//   }
+//   // Take the suffix link to node 'v'
+//   suffix_tree_node* cur_ptr = parent_ptr->m_suffix_link_ptr;
+//   std::string str = parent_ptr->get_string(this->m_str) + start_ptr->get_string(this->m_str);
+//   if (parent_ptr == this->m_root_ptr || parent_ptr->m_parent_ptr == this->m_root_ptr) {
+//     str = str.substr(1);
+//   }
+//   if (str.size() == 0) {
+//     start_ptr->m_suffix_link_ptr = this->m_root_ptr;
+//     return;
+//   }
+//   size_t i = cur_ptr->m_size;
+//   size_t target_depth = start_ptr->m_depth;
+//   while (i < str.size()) {
+//     cur_ptr = cur_ptr->find_child(this->m_str, str[i], false);
+//     i += cur_ptr->m_size;
+//   }
+//   if (i == str.size()) {
+//     // clean break
+//     start_ptr->m_suffix_link_ptr = cur_ptr;
+//   } else {
+//     // went past where we wanted to be
+//     suffix_tree_node* new_internal_ptr = this->split_edge(cur_ptr->m_parent_ptr, str.size() - parent_ptr->m_suffix_link_ptr->m_depth);
+//     start_ptr->m_suffix_link_ptr = new_internal_ptr;
+//   }
+// }
+
+// void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
+//   assert(start_ptr != nullptr && "FATAL ERROR, start_ptr was null in resolve_missing_suffix_link");
+//   if (!start_ptr) return;
+//   if (start_ptr == this->m_root_ptr) {
+//     start_ptr->m_suffix_link_ptr = this->m_root_ptr;
+//     return;
+//   }  suffix_tree_node* parent = start_ptr->m_parent_ptr;
+//   suffix_tree_node* suffix_link_candidate = parent->m_suffix_link_ptr;
+//   if (!suffix_link_candidate) {
+//     resolve_missing_suffix_link(parent);
+//     suffix_link_candidate = parent->m_suffix_link_ptr;
+//   }
+//   size_t match_length = 0;
+//   while (match_length < start_ptr->m_size && match_length < suffix_link_candidate->m_size &&
+//          this->m_str[suffix_link_candidate->m_start_idx + match_length] == this->m_str[start_ptr->m_start_idx + match_length]) {
+//     ++match_length;
+//   }
+//   if (match_length == suffix_link_candidate->m_size) {
+//     start_ptr->m_suffix_link_ptr = suffix_link_candidate;
+//   } else {
+//     start_ptr->m_suffix_link_ptr = this->split_edge(suffix_link_candidate, match_length);
+//   }
+// }
 
 /**
  * Splits the edge, go figure
@@ -183,6 +243,10 @@ void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
  * returns a pointer to the newly created internal node
  * 
  * this function looks scary
+ * 
+ * i is the new size of the new internal pointer
+ * 
+ * cur ptr will become a child of i
  */
 suffix_tree_node* suffix_tree::split_edge(suffix_tree_node* cur_ptr, size_t i) {
   suffix_tree_node* new_internal_ptr = new suffix_tree_node();
@@ -203,6 +267,6 @@ suffix_tree_node* suffix_tree::split_edge(suffix_tree_node* cur_ptr, size_t i) {
   cur_ptr->m_parent_ptr = new_internal_ptr;
   cur_ptr->m_prev_sibling_ptr = nullptr;
   cur_ptr->m_next_sibling_ptr = nullptr;
-  cur_ptr->set_depth();
+  new_internal_ptr->set_depth();
   return new_internal_ptr;
 }

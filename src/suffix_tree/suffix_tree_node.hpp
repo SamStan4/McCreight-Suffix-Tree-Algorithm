@@ -11,6 +11,7 @@ public:
   ~suffix_tree_node();
   std::string get_string(const std::string& str);
   suffix_tree_node* find_child(const std::string& str, int idx);
+  suffix_tree_node* find_child_chr(const std::string& str, const char child_key);
   void set_depth();
 private:
   // A pointer to the suffix tree node's parent node

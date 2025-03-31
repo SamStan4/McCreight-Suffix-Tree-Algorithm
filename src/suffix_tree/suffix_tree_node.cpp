@@ -38,6 +38,17 @@ suffix_tree_node* suffix_tree_node::find_child(const std::string& str, int idx) 
   return cur_ptr;
 }
 
+suffix_tree_node* suffix_tree_node::find_child_chr(const std::string& str, const char child_key) {
+  suffix_tree_node* cur_ptr = this->m_child_ptr;
+  while (cur_ptr) {
+    if (str[cur_ptr->m_start_idx] == child_key) {
+      break;
+    }
+    cur_ptr = cur_ptr->m_next_sibling_ptr;
+  }
+  return cur_ptr;
+}
+
 /**
  * !WARNING parent pointer must be correct and its size must be correct to use this
  */
