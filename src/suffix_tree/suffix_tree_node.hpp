@@ -3,6 +3,7 @@
 
 #include <string>
 #include <algorithm>
+#include <functional>
 
 class suffix_tree;
 
@@ -47,6 +48,8 @@ private:
 
   // Friend so that we dont need to make a bunch of setters and getters
   friend class suffix_tree;
+
+  friend suffix_tree_node* merge_sort(suffix_tree_node*, const std::string&);
 };
 
 #endif

@@ -86,6 +86,22 @@ void suffix_tree::advanced_print_tree(std::ostream& os) {
   advanced_print_helper(this->m_root_ptr);
 }
 
+std::string suffix_tree::get_longest_repeating_substring(void) {
+  suffix_tree_node* deep_node = this->m_root_ptr;
+  const std::function<void(suffix_tree_node*)> get_deep_node = [&get_deep_node, &deep_node](suffix_tree_node* cur_ptr) {
+    if (!cur_ptr) {
+      return;
+    }
+    get_deep_node(cur_ptr->m_child_ptr);
+    get_deep_node(cur_ptr->m_next_sibling_ptr);
+    if (cur_ptr->m_child_ptr && cur_ptr->m_depth > deep_node->m_depth) {
+      deep_node = cur_ptr;
+    }
+  };
+  get_deep_node(this->m_root_ptr);
+  return deep_node->get_complete_string(this->m_str);
+}
+
 /**
  * Iterates through all suffixes and inserts them
  */
@@ -153,44 +169,28 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, s
   }
 }
 
-// Start ptr is the pointer missing it's suffix link
 void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
   suffix_tree_node* parent_ptr = start_ptr->m_parent_ptr;
-
   if (!parent_ptr->m_suffix_link_ptr) {
     this->resolve_missing_suffix_link(parent_ptr);
   }
-
-  size_t start = start_ptr->m_start_idx;
-  size_t length = start_ptr->m_size;
-
+  size_t i = start_ptr->m_start_idx;
+  size_t j = start_ptr->m_size;
+  size_t k = 0;
   if (parent_ptr == this->m_root_ptr) {
-    ++start;
-    --length;
+    ++i;
+    --j;
   }
-
-  suffix_tree_node* suffix_link = this->node_hops(parent_ptr->m_suffix_link_ptr, start, length);
-
-  start_ptr->m_suffix_link_ptr = suffix_link;
-}
-
-suffix_tree_node* suffix_tree::node_hops(suffix_tree_node* cur_ptr, size_t start, size_t length) {
-  if (length == 0) {
-    return cur_ptr;
+  suffix_tree_node* cur_ptr = parent_ptr->m_suffix_link_ptr;
+  while (k < j) {
+    cur_ptr = cur_ptr->find_child(this->m_str, i);
+    i += cur_ptr->m_size;
+    k += cur_ptr->m_size;
   }
-
-  suffix_tree_node* next_hop = cur_ptr->find_child(this->m_str, start);
-
-  assert(next_hop && "FATAL ERROR, next hop was null inside node_hops");
-
-  if (length == next_hop->m_size) {
-    return next_hop;
-  } else if (length > next_hop->m_size) {
-    size_t next_start = start + next_hop->m_size;
-    size_t next_length = length - next_hop->m_size;
-    return this->node_hops(next_hop, next_start, next_length);
+  if (k == j) {
+    start_ptr->m_suffix_link_ptr = cur_ptr;
   } else {
-    return this->split_edge(next_hop, length);
+    start_ptr->m_suffix_link_ptr = this->split_edge(cur_ptr, cur_ptr->m_size - (k - j));
   }
 }
 

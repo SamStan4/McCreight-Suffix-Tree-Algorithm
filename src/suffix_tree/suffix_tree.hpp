@@ -15,6 +15,7 @@ public:
   ~suffix_tree();
   void print_tree(std::ostream&);
   void advanced_print_tree(std::ostream&);
+  std::string get_longest_repeating_substring(void);
 private:
   // This is a pointer to the root node of the tree
   suffix_tree_node* m_root_ptr;
@@ -33,8 +34,6 @@ private:
   suffix_tree_node* find_path_and_insert(suffix_tree_node*, size_t);
 
   void resolve_missing_suffix_link(suffix_tree_node*);
-
-  suffix_tree_node* node_hops(suffix_tree_node*, size_t, size_t);
 
   suffix_tree_node* split_edge(suffix_tree_node*, size_t);
 };

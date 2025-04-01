@@ -74,4 +74,13 @@ void suffix_tree_node::set_depth() {
   this->m_depth = this->m_parent_ptr->m_depth + this->m_size;
 }
 
-// MARK - Private Methods
+suffix_tree_node* merge_sort(suffix_tree_node* head_ptr, const std::string& str) {
+  const std::function<suffix_tree_node*(suffix_tree_node*, suffix_tree_node*)> merge = [&str](suffix_tree_node* f, suffix_tree_node* s) -> suffix_tree_node* {
+    if (!f) return s;
+    if (!s) return f;
+  };
+  const std::function<suffix_tree_node*(suffix_tree_node*)> sort = [&merge, &sort](suffix_tree_node* head) -> suffix_tree_node* {
+    return nullptr;
+  };
+  return sort(head_ptr);
+}
