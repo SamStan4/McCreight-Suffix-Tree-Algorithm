@@ -2,6 +2,7 @@
 #define __SUFFIX_TREE_NODE_HPP__
 
 #include <string>
+#include <algorithm>
 
 class suffix_tree;
 
@@ -10,6 +11,7 @@ public:
   suffix_tree_node();
   ~suffix_tree_node();
   std::string get_string(const std::string& str);
+  std::string get_complete_string(const std::string& str);
   suffix_tree_node* find_child(const std::string& str, int idx);
   suffix_tree_node* find_child_chr(const std::string& str, const char child_key);
   void set_depth();

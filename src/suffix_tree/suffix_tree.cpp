@@ -98,14 +98,12 @@ void suffix_tree::build_tree() {
   #endif
 
   for (size_t i = 0; i < str_size; ++i) {
-    // this->advanced_print_tree(std::cout);
-    // std::cout << "\n\n";
     #if USE_NAIVE_ALG
       this->find_path_and_insert(this->m_root_ptr, i);
     #else
       if (!internal_ptr->m_suffix_link_ptr)
         this->resolve_missing_suffix_link(internal_ptr);
-      internal_ptr = this->find_path_and_insert(internal_ptr->m_suffix_link_ptr, i + internal_ptr->m_suffix_link_ptr->m_depth);
+      internal_ptr = this->find_path_and_insert(internal_ptr->m_suffix_link_ptr, i + internal_ptr->m_suffix_link_ptr->m_parent_ptr->m_depth);
     #endif
   }
 }
@@ -157,30 +155,64 @@ suffix_tree_node* suffix_tree::find_path_and_insert(suffix_tree_node* cur_ptr, s
 
 // Start ptr is the pointer missing it's suffix link
 void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {
-  size_t i = start_ptr->m_start_idx + (start_ptr->m_parent_ptr == this->m_root_ptr ? 1 : 0); // idx that we are at
-  size_t j = start_ptr->m_size - (start_ptr->m_parent_ptr == this->m_root_ptr ? 1 : 0); // how far we need to go
-  size_t k = 0; // How far we have went
-  if (!start_ptr->m_parent_ptr->m_suffix_link_ptr) {
-    this->resolve_missing_suffix_link(start_ptr->m_parent_ptr);
+  // size_t i = start_ptr->m_start_idx + (start_ptr->m_parent_ptr == this->m_root_ptr ? 1 : 0); // idx that we are at
+  // size_t j = start_ptr->m_size - (start_ptr->m_parent_ptr == this->m_root_ptr ? 1 : 0); // how far we need to go
+  // size_t k = 0; // How far we have went
+  // if (!start_ptr->m_parent_ptr->m_suffix_link_ptr) {
+  //   this->resolve_missing_suffix_link(start_ptr->m_parent_ptr);
+  // }
+  // // check if str.size == 1 or 0 TODO
+  // // Take the parent's suffix link
+  // suffix_tree_node* cur_ptr = start_ptr->m_parent_ptr->m_suffix_link_ptr;
+  // while (k < j) {
+  //   // Maybe this might have to do with the case where the cur pointer is root?
+  //   cur_ptr = cur_ptr->find_child(this->m_str, i);
+  //   i += cur_ptr->m_size;
+  //   k += cur_ptr->m_size;
+  // }
+  // if (k == j) {
+  //   start_ptr->m_suffix_link_ptr = cur_ptr;
+  // } else {
+  //   const size_t l = cur_ptr->m_size - j + k;
+  //   start_ptr->m_suffix_link_ptr = this->split_edge(cur_ptr, l);
+  // }
+  suffix_tree_node* parent_ptr = start_ptr->m_parent_ptr;
+
+  if (!parent_ptr->m_suffix_link_ptr) {
+    this->resolve_missing_suffix_link(parent_ptr);
   }
-  // check if str.size == 1 or 0 TODO
-  // Take the parent's suffix link
-  suffix_tree_node* cur_ptr = start_ptr->m_parent_ptr->m_suffix_link_ptr;
-  while (k < j) {
-    // Maybe this might have to do with the case where the cur pointer is root?
-    cur_ptr = cur_ptr->find_child(this->m_str, i);
-    i += cur_ptr->m_size;
-    k += cur_ptr->m_size;
+
+  size_t start = start_ptr->m_start_idx;
+  size_t length = start_ptr->m_size;
+
+  if (parent_ptr == this->m_root_ptr) {
+    ++start;
+    --length;
   }
-  if (k == j) {
-    start_ptr->m_suffix_link_ptr = cur_ptr;
-  } else {
-    const size_t l = cur_ptr->m_size - j + k;
-    start_ptr->m_suffix_link_ptr = this->split_edge(cur_ptr, l);
-  }
+
+  suffix_tree_node* suffix_link = this->node_hops(parent_ptr->m_suffix_link_ptr, start, length);
+
+  start_ptr->m_suffix_link_ptr = suffix_link;
 }
 
-suffix_tree_node* suffix_tree::node_hops(suffix_tree_node* cur_ptr, size_t start, size_t size) {
+suffix_tree_node* suffix_tree::node_hops(suffix_tree_node* cur_ptr, size_t start, size_t length) {
+  if (length == 0) {
+    return cur_ptr;
+  }
+
+  suffix_tree_node* next_hop = cur_ptr->find_child(this->m_str, start);
+
+  assert(next_hop && "FATAL ERROR, next hop was null inside node_hops");
+
+  if (length == next_hop->m_size) {
+    return next_hop;
+  } else if (length > next_hop->m_size) {
+    size_t next_start = start + next_hop->m_size;
+    size_t next_length = length - next_hop->m_size;
+    return this->node_hops(next_hop, next_start, next_length);
+  } else {
+    return this->split_edge(next_hop, length);
+  }
 }
 
 // void suffix_tree::resolve_missing_suffix_link(suffix_tree_node* start_ptr) {

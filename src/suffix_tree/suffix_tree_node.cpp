@@ -25,6 +25,24 @@ std::string suffix_tree_node::get_string(const std::string& str) {
 }
 
 /**
+ * Returns the complete string that the node represets
+ */
+std::string suffix_tree_node::get_complete_string(const std::string& str) {
+  std::string result;
+  suffix_tree_node* cur_ptr = this;
+  suffix_tree_node* prev_ptr = nullptr;
+  while (cur_ptr && cur_ptr != prev_ptr) {
+    std::string substr = cur_ptr->get_string(str);
+    std::reverse(substr.begin(), substr.end());
+    result += substr;
+    prev_ptr = cur_ptr;
+    cur_ptr = cur_ptr->m_parent_ptr;
+  }
+  std::reverse(result.begin(), result.end());
+  return result;
+}
+
+/**
  * Finds the child that we want
  */
 suffix_tree_node* suffix_tree_node::find_child(const std::string& str, int idx) {

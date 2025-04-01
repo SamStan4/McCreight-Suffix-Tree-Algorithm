@@ -35,5 +35,5 @@ void program_wrapper::run_program(const int arg_count, const char* const* arg_ve
 
     std::ofstream ofs("tree.txt", std::ios::out);
 
-    tree.advanced_print_tree(ofs);
+    // tree.advanced_print_tree(ofs);
 }
