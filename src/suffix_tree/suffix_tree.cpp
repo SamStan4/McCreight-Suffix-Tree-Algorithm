@@ -119,7 +119,8 @@ void suffix_tree::build_tree() {
     #else
       if (!internal_ptr->m_suffix_link_ptr)
         this->resolve_missing_suffix_link(internal_ptr);
-      internal_ptr = this->find_path_and_insert(internal_ptr->m_suffix_link_ptr, i + internal_ptr->m_suffix_link_ptr->m_parent_ptr->m_depth);
+      const size_t next_position = i + internal_ptr->m_suffix_link_ptr->m_parent_ptr->m_depth;
+      internal_ptr = this->find_path_and_insert(internal_ptr->m_suffix_link_ptr, next_position);
     #endif
   }
 }
