@@ -24,15 +24,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 clean:
 	rm -rf $(OBJDIR)/* $(BINDIR)/*
 
-run: $(TARGET)
-	@if [ -f $(TARGET) ]; then \
-		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Opsin1_colorblindness_gene.fasta; \
-	else \
-		echo "Error: Executable $(TARGET) not found. Please build it first."; \
-		exit 1; \
-	fi
-
-run_banana: $(TARGET)
+run_s1: $(TARGET)
 	@if [ -f $(TARGET) ]; then \
 		./$(TARGET) inputs/alphabets/English_alphabet.txt inputs/genes/banana.txt; \
 	else \
@@ -40,7 +32,7 @@ run_banana: $(TARGET)
 		exit 1; \
 	fi
 
-run_mississippi: $(TARGET)
+run_s2: $(TARGET)
 	@if [ -f $(TARGET) ]; then \
 		./$(TARGET) inputs/alphabets/English_alphabet.txt inputs/genes/mississippi.txt; \
 	else \
@@ -48,15 +40,33 @@ run_mississippi: $(TARGET)
 		exit 1; \
 	fi
 
-run_atgc: $(TARGET)
+run_opsin_human: $(TARGET)
 	@if [ -f $(TARGET) ]; then \
-		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/atgc.txt; \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Opsin1_colorblindness_gene.fasta; \
 	else \
 		echo "Error: Executable $(TARGET) not found. Please build it first."; \
 		exit 1; \
 	fi
 
-run_yeast: $(TARGET)
+run_brca2_human: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Human-BRCA2-cds.fasta; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+# Tomato chloroplast genome
+run_slyco: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Slyco.fas; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+# yeast chromosome 12
+run_chr12: $(TARGET)
 	@if [ -f $(TARGET) ]; then \
 		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/chr12.fas; \
 	else \
@@ -64,6 +74,46 @@ run_yeast: $(TARGET)
 		exit 1; \
 	fi
 
+# Covid genomes
+run_covid_china: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Covid_Wuhan.fasta; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+run_covid_usa: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Covid_USA-CA4.fasta; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+run_covid_aus: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Covid_Australia.fasta; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+run_covid_india: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Covid_India.fasta; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
+
+run_covid_braz: $(TARGET)
+	@if [ -f $(TARGET) ]; then \
+		./$(TARGET) inputs/alphabets/gene_alphabet.txt inputs/genes/Covid_Brazil.fasta; \
+	else \
+		echo "Error: Executable $(TARGET) not found. Please build it first."; \
+		exit 1; \
+	fi
 
 debug: CXXFLAGS += -g -O0
 debug: $(DEBUG_TARGET)

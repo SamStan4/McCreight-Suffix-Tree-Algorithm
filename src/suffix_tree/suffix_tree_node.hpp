@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include <set>
 
 class suffix_tree;
 
@@ -11,45 +12,25 @@ class suffix_tree_node {
 public:
   suffix_tree_node();
   ~suffix_tree_node();
-  std::string get_string(const std::string& str);
-  std::string get_complete_string(const std::string& str);
-  suffix_tree_node* find_child(const std::string& str, int idx);
-  suffix_tree_node* find_child_chr(const std::string& str, const char child_key);
+  std::string get_string();
+  std::string get_complete_string();
+  suffix_tree_node* find_child(const char* const);
+  suffix_tree_node* find_child(const char);
   void set_depth();
+  bool is_visited_by(size_t);
 private:
-  // A pointer to the suffix tree node's parent node
   suffix_tree_node* m_parent_ptr;
-
-  // A pointer to the first child of the suffix tree node
   suffix_tree_node* m_child_ptr;
-
-  // A pointer to the suffix tree node's next sibling
-  // NULL if the node is the last in the level
-  suffix_tree_node* m_next_sibling_ptr;
-
-  // A pointer to the suffix tree node's previous sibling
-  // NULL if the node is the first node in the level
-  suffix_tree_node* m_prev_sibling_ptr;
-
-  // A pointer to the node's suffix link
+  suffix_tree_node* m_next_sib_ptr;
+  suffix_tree_node* m_prev_sib_ptr;
   suffix_tree_node* m_suffix_link_ptr;
-
-  // The start index in the string that this node represents
-  size_t m_start_idx;
-
-  // The size of the substring that the node represents
+  char const* m_start;
   size_t m_size;
-
-  // How deep this node is in the tree (size of the substring that it represents all the way to root)
   size_t m_depth;
-
-  // This id is for leaf nodes only
   int32_t m_id;
-
-  // Friend so that we dont need to make a bunch of setters and getters
+  std::set<size_t> m_visitors;
+  void sort_children();
   friend class suffix_tree;
-
-  friend suffix_tree_node* merge_sort(suffix_tree_node*, const std::string&);
 };
 
 #endif

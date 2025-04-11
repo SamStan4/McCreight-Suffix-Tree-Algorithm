@@ -16,6 +16,7 @@ public:
     program_wrapper& operator=(const program_wrapper&) = delete;
     static program_wrapper& get_instance(void);
     void run_program(const int arg_count, const char* const* arg_vector);
+    void run_construction(const std::string& gene, const std::string& alphabet, const std::string out);
 };
 
 #endif
